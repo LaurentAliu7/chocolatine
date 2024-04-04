@@ -28,7 +28,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Checking coding-style
         run: |
-          check.sh "$(pwd)" "$(pwd)"
+          check.sh "$(pwd)" "$(pwd)"cd -
           REPORT_FILENAME="coding-style-reports.log"
           if [[ -s $REPORT_FILENAME ]]; then
               while IFS= read -r LINE; do
@@ -91,12 +91,7 @@ jobs:
           fetch-depth: 0
       - uses: pixta-dev/repository-mirroring-action@v1
         with:
-          target_repo_url:
-            git@gitlab.com:<username>/<target_repository_name>.git
+          target_repo_url: ${{ env.MIRROR_URL }}
+            
           ssh_private_key:
             ${{ secrets.GIT_SSH_PRIVATE_KEY }}
-
-      - uses: pixta-dev/repository-mirroring-action@v1
-        with:
-          target_repo_url: ${{ env.MIRROR_URL }}
-          ssh_private_key: ${{ secrets.GIT_SSH_PRIVATE_KEY }}
