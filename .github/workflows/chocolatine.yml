@@ -13,7 +13,7 @@ on:
       - 'ga-ignore-*'
 
 env:
-  MIRROR_URL: git@github.com:EpitechPromo2028/B-DOP-200-PAR-2-1-chocolatine-laurent.aliu.git
+  MIRROR_URL: git@github.com:LaurentAliu7/chococo.git
   EXECUTABLES: chococo
 
 jobs:
