@@ -83,15 +83,15 @@ jobs:
         timeout-minutes: 2
 
   push_to_mirror:
-    name: Pushing to the mirror repository
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
+    if: ${{ github.event_name == 'push' }}
     steps:
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Push to Mirror Repository
-        uses: pixta-dev/repository-mirroring-action@v1
         with:
-          target_repository: ${{ env.MIRROR_URL }}
+          fetch-depth: 0
+
+      - uses: pixta-dev/repository-mirroring-action@v1
+        with:
+          target_repo_url: ${{ env.MIRROR_URL }}
           ssh_private_key: ${{ secrets.GIT_SSH_PRIVATE_KEY }}

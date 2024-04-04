@@ -28,7 +28,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Checking coding-style
         run: |
-          check.sh "$(pwd)" "$(pwd)"
+          check.sh "$(pwd)" "$(pwd)"cd -
           REPORT_FILENAME="coding-style-reports.log"
           if [[ -s $REPORT_FILENAME ]]; then
               while IFS= read -r LINE; do
@@ -36,7 +36,7 @@ jobs:
                   FILE=$(echo "$LINE" | cut -d ':' -f 1)
                   AT=$(echo "$LINE" | cut -d ':' -f 2)
                   ERROR=$(echo "$LINE" | cut -d ':' -f 4)
-                  echo "::error iyguyg file=$FILE,line=$AT,title=$TYPE coding style error::$ERROR"
+                  echo "::error file=$FILE,line=$AT,title=$TYPE coding style error::$ERROR"
               done < "$REPORT_FILENAME"
               exit 1
           fi
@@ -83,15 +83,15 @@ jobs:
         timeout-minutes: 2
 
   push_to_mirror:
-    name: Pushing to the mirror repository
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
+    if: ${{ github.event_name == 'push' }}
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Push to Mirror Repository
-        uses: pixta-dev/repository-mirroring-action@v1
+      - uses: actions/checkout@v4
         with:
-          target_repository: ${{ env.MIRROR_URL }}
-          ssh_private_key: ${{ secrets.GIT_SSH_PRIVATE_KEY }}
+          fetch-depth: 0
+      - uses: pixta-dev/repository-mirroring-action@v1
+        with:
+          target_repo_url: ${{ env.MIRROR_URL }}
+            
+          ssh_private_key:
+            ${{ secrets.GIT_SSH_PRIVATE_KEY }}
