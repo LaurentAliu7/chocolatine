@@ -9,7 +9,7 @@ SRC			=
 
 SRC_MAIN 	=	src/main.c
 
-SRC_TEST 	=	tests_unitaire/unit_tests.c
+SRC_TEST 	=
 
 OBJ			=	$(SRC:.c=.o)
 
