@@ -1,0 +1,97 @@
+name: Chocolatine Workflow
+
+on:
+  push:
+    branches:
+      - '*'
+    paths-ignore:
+      - 'ga-ignore-*'
+  pull_request:
+    branches:
+      - '*'
+    paths-ignore:
+      - 'ga-ignore-*'
+
+env:
+  MIRROR_URL: git@github.com:LaurentAliu7/chococo.git
+  EXECUTABLES: chococo
+
+jobs:
+  check_coding_style:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/epitech/coding-style-checker:latest
+    env:
+      REPORT_FILENAME: coding-style-reports.log
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Checking coding-style
+        run: |
+          check.sh "$(pwd)" "$(pwd)"
+          REPORT_FILENAME="coding-style-reports.log"
+          if [[ -s $REPORT_FILENAME ]]; then
+              while IFS= read -r LINE; do
+                  TYPE=$(echo "$LINE" | cut -d ':' -f 3 | tr -d ' ')
+                  FILE=$(echo "$LINE" | cut -d ':' -f 1)
+                  AT=$(echo "$LINE" | cut -d ':' -f 2)
+                  ERROR=$(echo "$LINE" | cut -d ':' -f 4)
+                  echo "::error iyguyg file=$FILE,line=$AT,title=$TYPE coding style error::$ERROR"
+              done < "$REPORT_FILENAME"
+              exit 1
+          fi
+
+  check_program_compilation:
+    name: Checking that the program compiles correctly
+    runs-on: ubuntu-latest
+    container:
+      image: epitechcontent/epitest-docker
+    timeout-minutes: 2
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Launch make
+        run: make
+        timeout-minutes: 2
+
+      - name: Clean
+        run: make clean
+
+      - name: Check binaries
+        run: |
+          binaries=$(echo "${{ env.EXECUTABLES }}" | tr ',' ' ')
+          for binary in $binaries; do
+            if [ ! -x "$binary" ]; then
+              echo "Binary $binary does not exist or is not executable."
+              exit 1
+            fi
+          done
+
+  run_tests:
+    name: Running tests
+    runs-on: ubuntu-latest
+    container:
+      image: epitechcontent/epitest-docker
+    timeout-minutes: 2
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Launch make tests_run
+        run: make tests_run
+        timeout-minutes: 2
+
+  push_to_mirror:
+    name: Pushing to the mirror repository
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Push to Mirror Repository
+        uses: pixta-dev/repository-mirroring-action@v1
+        with:
+          target_repository: ${{ env.MIRROR_URL }}
+          ssh_private_key: ${{ secrets.GIT_SSH_PRIVATE_KEY }}
