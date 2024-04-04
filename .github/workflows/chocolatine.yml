@@ -13,7 +13,7 @@ on:
       - 'ga-ignore-*'
 
 env:
-  MIRROR_URL: git@github.com:LaurentAliu7/chococo.git
+  MIRROR_URL: git@github.com:EpitechPromo2028/B-DOP-200-PAR-2-1-chocolatine-laurent.aliu.git
   EXECUTABLES: chococo
 
 jobs:
@@ -36,7 +36,7 @@ jobs:
                   FILE=$(echo "$LINE" | cut -d ':' -f 1)
                   AT=$(echo "$LINE" | cut -d ':' -f 2)
                   ERROR=$(echo "$LINE" | cut -d ':' -f 4)
-                  echo "::error iyguyg file=$FILE,line=$AT,title=$TYPE coding style error::$ERROR"
+                  echo "::error file=$FILE,line=$AT,title=$TYPE coding style error::$ERROR"
               done < "$REPORT_FILENAME"
               exit 1
           fi
@@ -86,10 +86,15 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'push' }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - uses: pixta-dev/repository-mirroring-action@v1
+        with:
+          target_repo_url:
+            git@gitlab.com:<username>/<target_repository_name>.git
+          ssh_private_key:
+            ${{ secrets.GITLAB_SSH_PRIVATE_KEY }}
 
       - uses: pixta-dev/repository-mirroring-action@v1
         with:
